@@ -6,6 +6,8 @@
   Projet C++
  */
 
+// Comment above the includes
+
 #include <cstdlib>
 #include <cstddef>
 #include <iostream>
