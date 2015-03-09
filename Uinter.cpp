@@ -7,7 +7,6 @@
  */
 
 #include <cstdlib>
-// only a comment in the middle
 #include <cstddef>
 #include <iostream>
 
