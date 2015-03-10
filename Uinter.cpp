@@ -3,7 +3,7 @@
   Prénom: Carlos
   Section: INFO1
 
-  Projet C++
+  Projet 1 : C++
  */
 
 #include <cstdlib>
@@ -15,7 +15,7 @@ class Uinter {
     int _bi, _bs;		// lower and upper bound
     _Inter *_next;		// pointer to next interval
   public:
-    _Inter(int a, int b, _Inter* next=nullptr);
+    _Inter(int a, int b, _Inter* next=nullptr): _bi(a), _bs(b), _next(next){};
     void setbi(int a) {_bi = a;};
     void setbs(int b) {_bs = b;};
     void setnext(_Inter* next) {_next = next;};
@@ -25,44 +25,19 @@ class Uinter {
   };
   _Inter* _tete;		// pointer to the first interval
 public:
-  Uinter();
+  Uinter(): _tete(new _Inter(1, 3)) {}; // first interval to test
   void reunion(int bi, int bs);
   void printUinter();
   bool contient(int nb);
+  _Inter* gettete() {return _tete;};
 };
 
-// Constructors
-
-Uinter::Uinter() {
-  //  std::cout << "Yeahhh, a is: " << a << " and b is: " << b << std::endl;
-  std::cout << "this is the Uinter constructor!" << std::endl;
-  _tete = new _Inter(4,8);
-  std::cout << _tete -> getbs() << std::endl;
-  std::cout << "About to apply a change to bs, becomes" << std::endl;
-  _tete -> setbs(10);
-  std::cout << _tete -> getbs() << std::endl;
-  std::cout << "after" << std::endl;
-  std::cout << this << std::endl;
-}
-
-Uinter::_Inter::_Inter(int a, int b, _Inter* next) {
-  std::cout << "----------------------------------------------" << std::endl;
-  std::cout << "This is the _Inter constructor" << std::endl;
-  _bi = a;
-  std::cout << "_bi is: " << _bi << std::endl;
-  _bs = b;
-  std::cout << "_bs is: " << _bs << std::endl;
-  _next = next;
-  std::cout << "_next is: " << _next << std::endl;
-  std::cout << "----------------------------------------------" << std::endl;
-}
 
 // Uinter member functions
 
-
-void reunion() {
-  
-}
+// void reunion(int new_bi, int new_bs) {
+//   void();0;
+// }
 
 
 void Uinter::printUinter() {
@@ -73,12 +48,27 @@ void Uinter::printUinter() {
 }
 
 
-bool Uinter::contient(int a) {
-  if(a > _tete -> getbi() and a < _tete -> getbs()) {
-    return true;
-  } else {
-    return false;
+bool Uinter::contient(int nb) {
+  _Inter* pointer = _tete;
+  std::cout << "The number to check is: " << nb << std::endl;
+
+  bool go = true;
+  bool res = false;
+  // if number is found, exit loop before
+  while (go) {
+    if (nb >= pointer -> getbi() and nb <= pointer -> getbs()) {
+      std::cout << "The number IS in the interval" << std::endl;
+      go = false;
+      res = true;
+    } else if (pointer -> getnext() != nullptr) {
+      std::cout << "Going to next interval" << std::endl;
+      pointer = pointer -> getnext();
+    } else {
+      std::cout << "The number IS NOT in the interval" << std::endl;
+      go = false;
+    }
   }
+  return res;
 }
 
 
