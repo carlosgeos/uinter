@@ -33,7 +33,7 @@ public:
 };
 
 // _Inter constructor
-
+// test comment
 Uinter::_Inter::_Inter(int a, int b, _Inter* next) {
   std::cout << "Inter being constructed" << std::endl;
   checkBoundaries(a, b);
