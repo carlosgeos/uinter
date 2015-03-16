@@ -26,7 +26,7 @@ class Uinter {
   };
   _Inter* _tete;		// pointer to the first interval
 public:
-  Uinter(): _tete(new _Inter(3, 7, new _Inter(21, 20))) {}; // first interval to test
+  Uinter(): _tete(new _Inter(3, 7, new _Inter(20, 40))) {}; // first interval to test
   void reunion(int new_bi, int new_bs);
   void printUinter();
   bool contient(int nb);
@@ -46,7 +46,7 @@ Uinter::_Inter::_Inter(int a, int b, _Inter* next) {
 
 void Uinter::_Inter::checkBoundaries(int new_bi, int new_bs) {
   if (new_bs < new_bi) {
-    std::cout << "Not a valid interval" << std::endl;
+    std::cout << "Failed to create _Inter instance. Not a valid interval. Exiting" << std::endl;
     std::exit(0);
   }
 
@@ -57,7 +57,6 @@ void Uinter::_Inter::checkBoundaries(int new_bi, int new_bs) {
 // Uinter member functions
 
 void Uinter::reunion(int new_bi, int new_bs) {
-  checkBoundaries(new_bi, new_bs);
   // if boundary in common: modify instance of _Inter
   if (contient(new_bi) and contient(new_bs)) {
     std::cout << "scam interval!" << std::endl;
@@ -71,7 +70,7 @@ void Uinter::reunion(int new_bi, int new_bs) {
 
 void Uinter::printUinter() {
   std::cout << "-------------Uinter information---------------" << std::endl;
-  std::cout << "Location in memory: " << *_tete << std::endl;
+  std::cout << "Location in memory: " << _tete << std::endl;
   std::cout << "Interval(s)       : ";
   _Inter* pointer = _tete;
   do {
@@ -81,7 +80,6 @@ void Uinter::printUinter() {
   std::cout << std::endl;
   std::cout << "----------------------------------------------" << std::endl;
 }
-
 
 bool Uinter::contient(int nb) {
   _Inter* pointer = _tete;
