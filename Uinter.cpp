@@ -29,6 +29,7 @@ public:
   Uinter(): _tete(new _Inter(3, 7, new _Inter(20, 40, new _Inter(43, 46, new _Inter(50, 60))))) {}; // first interval to test
   void reunion(int new_bi, int new_bs);
   void reunion(int new_bi, int new_bs, _Inter* pointer);
+  void set_interval_bs(int new_bs, _Inter* pointer);
   void printUinter();
   bool contient(int nb);
 };
@@ -47,13 +48,12 @@ Uinter::_Inter::_Inter(int a, int b, _Inter* next) {
 
 void Uinter::_Inter::checkBoundaries(int new_bi, int new_bs) {
   if (new_bs < new_bi) {
-    std::cout << "Failed to create _Inter instance. Not a valid interval. Exiting" << std::endl;
+    std::cout << "Failed to create _Inter instance. "
+      "Not a valid interval. Exiting" << std::endl;
     std::exit(0);
   }
 
 }
-
-// Uinter constructor
 
 // Uinter member functions
 
@@ -67,61 +67,47 @@ void::Uinter::reunion(int new_bi, int new_bs) {
 }
 
 void Uinter::reunion(int new_bi, int new_bs, _Inter* pointer) {
-  std::cout << "3 arguments called" << std::endl;
-  // if boundary in common: modify instance of _Inter
   // checkBoundaries needs to be done now!! Otherwise reunion code doesnt work
   std::cout << "reunion with: " << new_bi << " and " << new_bs << std::endl;
 
-  int bi;
-  int bs;
-  int next_bi;
-  int next_bs;
-  _Inter* next_inter;
-  bool go = true;
+  int bi = pointer -> getbi();
+  int bs = pointer -> getbs();
 
-  bool bi_inside = contient(new_bi);
-  bool bs_inside = contient(new_bs);
-
-  bi = pointer -> getbi();
-  next_bi = pointer -> getnext() -> getbi();
-  bs = pointer -> getbs();
-  next_bs = pointer -> getnext() -> getbs();
-  next_inter = pointer -> getnext() -> getnext();
-
-  if (bi_inside) {
-    std::cout << "should be seen" << std::endl;
-    if (bi < new_bi and new_bi < bs) {
-      if (new_bs > bs) {
-	pointer -> setbs(new_bs);
-      }
-      printUinter();
-      while (pointer -> getnext() -> getbs() < new_bs) {
-	std::cout << "veces" << std::endl;
-	pointer -> setnext(pointer -> getnext() -> getnext());
-	std::cout << "final" << std::endl;
-      }
-      if (bs_inside and new_bs > bs) {
-	pointer -> setbs(pointer -> getnext() -> getbs());
-	pointer -> setnext(pointer -> getnext() -> getnext());
-      }
-    } else {
-      // take a step forward in the list
-      reunion(new_bi, new_bs, pointer -> getnext());
-    }
-  } else if (not bi_inside) {
-    if (new_bi < bi) {
-      pointer -> setbi(new_bi);
-    }
-    while (new_bs > bs) {
-      pointer -> setbs(next_bs);
-      pointer -> setnext(next_inter);
-    }
-  } else if (bi_inside and bs_inside) {
-    std::cout << "yeahh" << std::endl;
+  if (bi < new_bi and new_bi < bs) {
+    set_interval_bs(new_bs, pointer);
+  } else if (new_bi < bi and new_bs < bi) {
+    _Inter* next_inter = pointer;
+    pointer = new _Inter(new_bi, new_bs, next_inter);
+  } else if (new_bi < bi) {
+    // careful with this condition, since it can be true for a lot of intervals
+    pointer -> setbi(new_bi);
+    set_interval_bs(new_bs, pointer);
   } else {
-    std::cout << "yeahh" << std::endl;
+    // take a step forward in the list
+    reunion(new_bi, new_bs, pointer -> getnext());
   }
 }
+
+void Uinter::set_interval_bs(int new_bs, _Inter* pointer) {
+
+  int bs = pointer -> getbs();
+  bool bs_inside = contient(new_bs);
+
+  if (bs_inside and new_bs > bs) {
+    do {
+      pointer -> setbs(pointer -> getnext() -> getbs());
+      pointer -> setnext(pointer -> getnext() -> getnext());
+    } while (new_bs > pointer -> getnext() -> getbs());
+  } else if (not bs_inside) {
+    printUinter();
+    pointer -> setbs(new_bs);
+    while (pointer -> getnext() != nullptr and pointer -> getnext() -> getbi() < new_bs) {
+      pointer -> setnext(pointer -> getnext() -> getnext());
+    }
+  }
+}
+
+
 
 
 void Uinter::printUinter() {
@@ -164,7 +150,7 @@ int main() {
 
   std::cout << "BEFORE:" << std::endl;
   interval.printUinter();
-  interval.reunion(25, 35);
+  interval.reunion(-12, 1);
   std::cout << "AFTER" << std::endl;
   interval.printUinter();
   return 0;
