@@ -26,16 +26,16 @@ class Uinter {
   };
   _Inter* _tete;		// pointer to the first interval
 public:
-  Uinter(): _tete(new _Inter(3, 7, new _Inter(20, 40))) {}; // first interval to test
+  Uinter(): _tete(new _Inter(3, 7, new _Inter(20, 40, new _Inter(43, 46, new _Inter(50, 60))))) {}; // first interval to test
   void reunion(int new_bi, int new_bs);
   void printUinter();
   bool contient(int nb);
 };
 
 // _Inter constructor
-// test comment
+
 Uinter::_Inter::_Inter(int a, int b, _Inter* next) {
-  std::cout << "Inter being constructed" << std::endl;
+  //std::cout << "Inter being constructed" << std::endl;
   checkBoundaries(a, b);
   _bi = a;
   _bs = b;
@@ -58,13 +58,57 @@ void Uinter::_Inter::checkBoundaries(int new_bi, int new_bs) {
 
 void Uinter::reunion(int new_bi, int new_bs) {
   // if boundary in common: modify instance of _Inter
-  if (contient(new_bi) and contient(new_bs)) {
-    std::cout << "scam interval!" << std::endl;
-  } else if (not contient(new_bi) and not contient(new_bs)) {
-    std::cout << "new interval!!" << std::endl;
-    _tete -> setnext(new _Inter(new_bi, new_bs));
+  // checkBoundaries needs to be done now!! Otherwise reunion code doesnt work
+  std::cout << "reunion with: " << new_bi << " and " << new_bs << std::endl;
+
+
+  _Inter* pointer = _tete;
+  _Inter* tmp_ptr;
+  int bi;
+  int bs;
+  int next_bi;
+  int next_bs;
+  _Inter* next_inter;
+  bool go = true;
+
+  bool bi_inside = contient(new_bi);
+  bool bs_inside = contient(new_bs);
+
+  while (pointer -> getnext() != nullptr and go) {
+    bi = pointer -> getbi();
+    next_bi = pointer -> getnext() -> getbi();
+    bs = pointer -> getbs();
+    next_bs = pointer -> getnext() -> getbs();
+    next_inter = pointer -> getnext() -> getnext();
+
+    if (new_bi >= bi and new_bs <= bs) {
+      // do nothing, since interval is smaller
+      ;
+    } else if (bi_inside and not bs_inside) {
+      std::cout << "should be seen" << std::endl;
+      if (bi < new_bi and new_bi < bs) {
+	pointer -> setbs(new_bs);
+      }
+      if (next_bs < new_bs) {
+	pointer -> setnext(next_inter);
+      }
+    } else if (bs_inside and not bi_inside) {
+      if (new_bi < bi) {
+	pointer -> setbi(new_bi);
+      }
+      tmp_ptr = pointer;
+      while (new_bs > bs) {
+	pointer -> setbs(next_bs);
+	pointer -> setnext(next_inter);
+      }
+      break;
+    } else if (bi_inside and bs_inside) {
+      std::cout << "yeahh" << std::endl;
+    } else {
+    std::cout << "yeahh" << std::endl;
+    }
+    pointer = pointer -> getnext();
   }
-  // if nothing in common: create new instance
 }
 
 
@@ -89,13 +133,13 @@ bool Uinter::contient(int nb) {
   // if number is found, exit loop before
   while (go) {
     if (nb >= pointer -> getbi() and nb <= pointer -> getbs()) {
-      std::cout << "The number " << nb << " IS in the interval" << std::endl;
+      //std::cout << "The number " << nb << " IS in the interval" << std::endl;
       go = false;
       res = true;
     } else if (pointer -> getnext() != nullptr) {
       pointer = pointer -> getnext();
     } else {
-      std::cout << "The number " << nb << " IS NOT in the interval" << std::endl;
+      //std::cout << "The number " << nb << " IS NOT in the interval" << std::endl;
       go = false;
     }
   }
@@ -106,7 +150,10 @@ bool Uinter::contient(int nb) {
 int main() {
   Uinter interval;
 
-  interval.contient(15);
+  std::cout << "BEFORE:" << std::endl;
+  interval.printUinter();
+  interval.reunion(1, 55);
+  std::cout << "AFTER" << std::endl;
   interval.printUinter();
   return 0;
 }
