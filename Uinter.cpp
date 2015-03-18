@@ -28,6 +28,7 @@ class Uinter {
 public:
   Uinter(): _tete(new _Inter(3, 7, new _Inter(20, 40, new _Inter(43, 46, new _Inter(50, 60))))) {}; // first interval to test
   void reunion(int new_bi, int new_bs);
+  void reunion(int new_bi, int new_bs, _Inter* pointer);
   void printUinter();
   bool contient(int nb);
 };
@@ -56,14 +57,21 @@ void Uinter::_Inter::checkBoundaries(int new_bi, int new_bs) {
 
 // Uinter member functions
 
-void Uinter::reunion(int new_bi, int new_bs) {
+void::Uinter::reunion(int new_bi, int new_bs) {
+  // this overload has access to the _tete attribute. it is executed
+  // when reunion is called with only 2 parameters
+
+  // reason: a non-static data member cannot be a default argument for
+  // a method
+  reunion(new_bi, new_bs, _tete);
+}
+
+void Uinter::reunion(int new_bi, int new_bs, _Inter* pointer) {
+  std::cout << "3 arguments called" << std::endl;
   // if boundary in common: modify instance of _Inter
   // checkBoundaries needs to be done now!! Otherwise reunion code doesnt work
   std::cout << "reunion with: " << new_bi << " and " << new_bs << std::endl;
 
-
-  _Inter* pointer = _tete;
-  _Inter* tmp_ptr;
   int bi;
   int bs;
   int next_bi;
@@ -74,40 +82,44 @@ void Uinter::reunion(int new_bi, int new_bs) {
   bool bi_inside = contient(new_bi);
   bool bs_inside = contient(new_bs);
 
-  while (pointer -> getnext() != nullptr and go) {
-    bi = pointer -> getbi();
-    next_bi = pointer -> getnext() -> getbi();
-    bs = pointer -> getbs();
-    next_bs = pointer -> getnext() -> getbs();
-    next_inter = pointer -> getnext() -> getnext();
+  bi = pointer -> getbi();
+  next_bi = pointer -> getnext() -> getbi();
+  bs = pointer -> getbs();
+  next_bs = pointer -> getnext() -> getbs();
+  next_inter = pointer -> getnext() -> getnext();
 
-    if (new_bi >= bi and new_bs <= bs) {
-      // do nothing, since interval is smaller
-      ;
-    } else if (bi_inside and not bs_inside) {
-      std::cout << "should be seen" << std::endl;
-      if (bi < new_bi and new_bi < bs) {
+  if (bi_inside) {
+    std::cout << "should be seen" << std::endl;
+    if (bi < new_bi and new_bi < bs) {
+      if (new_bs > bs) {
 	pointer -> setbs(new_bs);
       }
-      if (next_bs < new_bs) {
-	pointer -> setnext(next_inter);
+      printUinter();
+      while (pointer -> getnext() -> getbs() < new_bs) {
+	std::cout << "veces" << std::endl;
+	pointer -> setnext(pointer -> getnext() -> getnext());
+	std::cout << "final" << std::endl;
       }
-    } else if (bs_inside and not bi_inside) {
-      if (new_bi < bi) {
-	pointer -> setbi(new_bi);
+      if (bs_inside and new_bs > bs) {
+	pointer -> setbs(pointer -> getnext() -> getbs());
+	pointer -> setnext(pointer -> getnext() -> getnext());
       }
-      tmp_ptr = pointer;
-      while (new_bs > bs) {
-	pointer -> setbs(next_bs);
-	pointer -> setnext(next_inter);
-      }
-      break;
-    } else if (bi_inside and bs_inside) {
-      std::cout << "yeahh" << std::endl;
     } else {
-    std::cout << "yeahh" << std::endl;
+      // take a step forward in the list
+      reunion(new_bi, new_bs, pointer -> getnext());
     }
-    pointer = pointer -> getnext();
+  } else if (not bi_inside) {
+    if (new_bi < bi) {
+      pointer -> setbi(new_bi);
+    }
+    while (new_bs > bs) {
+      pointer -> setbs(next_bs);
+      pointer -> setnext(next_inter);
+    }
+  } else if (bi_inside and bs_inside) {
+    std::cout << "yeahh" << std::endl;
+  } else {
+    std::cout << "yeahh" << std::endl;
   }
 }
 
@@ -146,13 +158,13 @@ bool Uinter::contient(int nb) {
   return res;
 }
 
-
+//--------------------- Main --------------------------
 int main() {
   Uinter interval;
 
   std::cout << "BEFORE:" << std::endl;
   interval.printUinter();
-  interval.reunion(1, 55);
+  interval.reunion(25, 35);
   std::cout << "AFTER" << std::endl;
   interval.printUinter();
   return 0;
