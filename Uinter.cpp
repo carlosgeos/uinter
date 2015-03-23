@@ -11,8 +11,8 @@
 
 class Uinter {
   class _Inter {
-    int _bi, _bs;		// lower and upper bound
-    _Inter *_next;		// pointer to next interval
+    int _bi, _bs;      	       	// lower and upper bound
+    _Inter *_next;     	        // pointer to next interval
   public:
     _Inter(int a, int b, _Inter* next=nullptr);
     void setbi(int a) {_bi = a;};
@@ -25,7 +25,7 @@ class Uinter {
   };
   _Inter* _tete;		// pointer to the first interval
 public:
-  Uinter(): _tete() {};
+  Uinter(): _tete(nullptr) {};
   void reunion(int new_bi, int new_bs);
   void reunion(int new_bi, int new_bs, _Inter* pointer);
   void set_interval_bs(int new_bs, _Inter* pointer);
@@ -45,7 +45,7 @@ Uinter::_Inter::_Inter(int a, int b, _Inter* next) : _bi(a),
   checkBoundaries(a, b);
 }
 
-// =============== _Inter member functions ===============
+// =============== _Inter member functions ==========
 
 void Uinter::_Inter::checkBoundaries(int new_bi, int new_bs) {
   if (new_bs < new_bi) {
@@ -76,11 +76,11 @@ void Uinter::reunion(int new_bi, int new_bs, _Inter* pointer) {
 
      - The new lower bound is lower than the actual lower bound
          - The upper bound as well -> create new _Inter below
-	 - Otherwise -> adjust lower bound and upper bound
+         - Otherwise -> adjust lower bound and upper bound
 
      - The new lower bound is contained in the actual interval
          - The upper bound as well -> do nothing
-	 - Otherwise -> simply set the upper bound
+         - Otherwise -> simply set the upper bound
 
      - If reached the end, means interval is bigger and new _Inter
        is created at the end
@@ -123,7 +123,14 @@ void Uinter::reunion(int new_bi, int new_bs, _Inter* pointer) {
 
 void Uinter::set_interval_bs(int new_bs, _Inter* pointer) {
   /* Sets the upper bound for the given interval and adjusts the next
-     pointer accordingly. It also deletes the unused intervals.
+     pointer accordingly.
+
+     It also deletes the unused intervals. Otherwise there would be
+     _Inter objects created in memory that are not being pointer by
+     any pointer, hence they cannot be accessed and cause memory leak
+
+     The temporary pointer jumped is deleted when is goes out of
+     scope.
   */
 
   bool bs_inside = contient(new_bs);
@@ -148,6 +155,8 @@ void Uinter::set_interval_bs(int new_bs, _Inter* pointer) {
 }
 
 void Uinter::printUinter() {
+  /* Prints general information about the union of intervals
+   */
   std::cout << "|------------Uinter information-------------" << std::endl;
   std::cout << "| Empty interval?    : ";
   if (_tete == nullptr) {
@@ -197,7 +206,7 @@ int main() {
   Uinter interval;
   interval.printUinter();
 
-  int bis[] = {5, 10, 22, 12, 0, 10, 7, 7, 3, 100, 140, -1, -100};
+  int bis[] = {5, 10, 23, 12, 0, 10, 7, 7, 3, 100, 140, -1, -100};
   int bss[] = {8, 15, 30, 23, 0, 25, 7, 9, 5, 150, 170,  0, 1000};
   int len = sizeof(bis) / sizeof(bis[0]);
 
@@ -205,6 +214,5 @@ int main() {
     interval.reunion(bis[i], bss[i]);
     interval.printUinter();
   }
-
   return 0;
 }

@@ -1,4 +1,2 @@
 out
-*.aux
-*.log
-*.pdf
+tex_files
